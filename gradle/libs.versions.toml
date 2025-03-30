@@ -12,6 +12,7 @@ navigation = "2.8.8"
 uiTextGoogleFonts = "1.7.8"
 materialIconsExtended = "1.7.8"
 palette = "1.0.0"
+coil = "3.0.0-rc01"
 #accompanistFlowLayout = "0.20.0"
 
 [libraries]
@@ -33,6 +34,7 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 #accompanist-flow-layout = { group = "com.google.accompanist", name = "accompanist-flow-layout", version.ref = "accompanistFlowLayout" }
 
 [plugins]

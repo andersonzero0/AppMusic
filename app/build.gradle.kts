@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.palette)
+    implementation(libs.coil.compose)
 //    implementation(libs.accompanist.flow.layout)
 
     implementation(libs.androidx.core.ktx)

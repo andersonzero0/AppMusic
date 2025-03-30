@@ -34,10 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.model.Music
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListMusics(modifier: Modifier = Modifier, onNavigateToPlayMusic: (String) -> Unit = {}) {
+fun ListMusics(modifier: Modifier = Modifier, musics: List<Music>, onNavigateToPlayMusic: (String) -> Unit = {}) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -105,14 +106,14 @@ fun ListMusics(modifier: Modifier = Modifier, onNavigateToPlayMusic: (String) ->
             }
         }
 
-        items(15) { index ->
+        items(items = musics, key = { it.id }) {
             MusicItem(
-                id = index.toString(),
-                title = "Música $index",
-                artist = "Artista $index",
-                cover = R.drawable.img1,
-                duration = "3:30",
-                onClick = { onNavigateToPlayMusic("Música $index") },
+                id = it.id.toString(),
+                title = it.title,
+                artist = it.artist,
+                cover = it.albumArtUri,
+                duration = it.duration,
+                onClick = { onNavigateToPlayMusic("Música") },
             )
         }
     }
@@ -121,5 +122,5 @@ fun ListMusics(modifier: Modifier = Modifier, onNavigateToPlayMusic: (String) ->
 @Preview
 @Composable
 fun ListMusicsPreview() {
-    ListMusics()
+    ListMusics(musics = emptyList())
 }

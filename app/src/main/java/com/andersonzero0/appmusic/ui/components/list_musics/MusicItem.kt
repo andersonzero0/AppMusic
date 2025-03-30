@@ -1,5 +1,6 @@
 package com.andersonzero0.appmusic.ui.components.list_musics
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 
 @Composable
@@ -32,7 +34,7 @@ fun MusicItem(
     id: String,
     title: String,
     artist: String,
-    cover: Int,
+    cover: Uri?,
     duration: String,
     onClick: (String) -> Unit = {}
 ) {
@@ -42,34 +44,54 @@ fun MusicItem(
             .clip(MaterialTheme.shapes.small)
             .clickable { onClick(id) }
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Image(
-                painter = painterResource(id = cover),
-                contentDescription = "cover",
+//            Image(
+//                painter = painterResource(id = R.drawable.img5),
+//                contentDescription = "cover",
+//                modifier = Modifier
+//                    .width(52.dp)
+//                    .aspectRatio(1f, matchHeightConstraintsFirst = true)
+//                    .clip(MaterialTheme.shapes.small),
+//                contentScale = ContentScale.Crop
+//            )
+            AsyncImage(
+                model = cover, contentDescription = "cover",
+                placeholder = painterResource(id = R.drawable.img5),
+                error = painterResource(id = R.drawable.img5),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .width(52.dp)
                     .aspectRatio(1f, matchHeightConstraintsFirst = true)
-                    .clip(MaterialTheme.shapes.small),
-                contentScale = ContentScale.Crop
+                    .clip(MaterialTheme.shapes.small)
             )
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = artist,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(start = 8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+            Text(
+                text = artist,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         Row(
@@ -95,9 +117,9 @@ fun MusicItem(
 fun MusicItemPreview() {
     MusicItem(
         id = "1",
-        title = "Música 1",
+        title = "Music",
         artist = "Artista 1",
-        cover = R.drawable.img1,
+        cover = Uri.parse("android.resource://com.andersonzero0.appmusic/drawable/img1"),
         duration = "3:30"
     )
 }

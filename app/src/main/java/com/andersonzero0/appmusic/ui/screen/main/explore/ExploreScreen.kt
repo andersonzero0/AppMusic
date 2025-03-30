@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.andersonzero0.appmusic.ui.components.screen.Screen
 import com.andersonzero0.appmusic.ui.components.section_musics.SectionMusics
 import com.andersonzero0.appmusic.ui.screen.main.home.HomeScreen
+import com.andersonzero0.appmusic.ui.screen.main.home.HomeUiState
 
 @Composable
 fun ExploreScreen() {
@@ -40,6 +41,8 @@ fun ExploreScreen() {
 @Composable
 fun ExploreScreenPreview() {
     HomeScreen(
-        onNavigateToPlayMusic = {}
+        onNavigateToPlayMusic = {},
+        uiState = HomeUiState(),
+        onEvent = {}
     )
 }

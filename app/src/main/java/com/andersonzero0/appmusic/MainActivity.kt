@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andersonzero0.appmusic.ui.theme.AppMusicTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -46,6 +48,7 @@ import com.andersonzero0.appmusic.ui.route.mainGraph
 import com.andersonzero0.appmusic.ui.route.authGraph
 import com.andersonzero0.appmusic.ui.route.navBarRoutes
 import com.andersonzero0.appmusic.ui.route.routesWithGoBack
+import com.andersonzero0.appmusic.ui.screen.main.home.HomeViewModel
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 class MainActivity : ComponentActivity() {
@@ -57,6 +60,9 @@ class MainActivity : ComponentActivity() {
             AppMusicTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+                val homeViewModel by viewModels<HomeViewModel>()
+                val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -153,7 +159,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             ) {
                                 authGraph(navController)
-                                mainGraph(navController)
+                                mainGraph(navController, homeViewModel, homeUiState)
                             }
                         }
                     }
