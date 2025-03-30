@@ -1,6 +1,9 @@
 package com.andersonzero0.appmusic.core.permissions
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,7 +12,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import com.andersonzero0.appmusic.MainActivity
 
 @Composable
 fun AudioPermission(callback: () -> Unit) {
@@ -18,41 +20,37 @@ fun AudioPermission(callback: () -> Unit) {
     val audiosPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (!isGranted)
-            ActivityResultContracts.RequestPermission()
-        else
+        if (isGranted) {
             callback()
+        } else {
+            Toast.makeText(context, "Permissão negada", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun checkAudiosPermission() {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.READ_MEDIA_AUDIO
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            callback()
-        } else if (shouldShowRequestPermissionRationale(
-                context as MainActivity,
-                android.Manifest.permission.READ_MEDIA_AUDIO
-            ) && shouldShowRequestPermissionRationale(
-                context,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-        ) {
-            Toast.makeText(
-                context,
-                "Necessário permissão o acesso á mídia",
-                Toast.LENGTH_SHORT
-            ).show()
+        val requiredPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            android.Manifest.permission.READ_MEDIA_AUDIO
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                audiosPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_AUDIO)
-            } else {
-                audiosPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        val permissionStatus = ContextCompat.checkSelfPermission(context, requiredPermission)
+
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            Log.d("AudioPermission", "Permissão já concedida")
+            callback()
+        } else {
+            Log.d("AudioPermission", "Permissão não concedida")
+            if (context is Activity) {
+                if (shouldShowRequestPermissionRationale(context, requiredPermission)) {
+                    Toast.makeText(
+                        context,
+                        "Necessário permissão para acesso à mídia",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    audiosPermissionLauncher.launch(requiredPermission)
+                }
             }
         }
     }

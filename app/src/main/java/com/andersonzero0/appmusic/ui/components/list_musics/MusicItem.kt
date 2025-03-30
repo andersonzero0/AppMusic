@@ -31,12 +31,12 @@ import com.andersonzero0.appmusic.R
 
 @Composable
 fun MusicItem(
-    id: String,
+    id: Long,
     title: String,
     artist: String,
     cover: Uri?,
     duration: String,
-    onClick: (String) -> Unit = {}
+    onClick: (Long) -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -51,15 +51,6 @@ fun MusicItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-//            Image(
-//                painter = painterResource(id = R.drawable.img5),
-//                contentDescription = "cover",
-//                modifier = Modifier
-//                    .width(52.dp)
-//                    .aspectRatio(1f, matchHeightConstraintsFirst = true)
-//                    .clip(MaterialTheme.shapes.small),
-//                contentScale = ContentScale.Crop
-//            )
             AsyncImage(
                 model = cover, contentDescription = "cover",
                 placeholder = painterResource(id = R.drawable.img5),
@@ -90,7 +81,9 @@ fun MusicItem(
             Text(
                 text = artist,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
 
@@ -116,7 +109,7 @@ fun MusicItem(
 @Composable
 fun MusicItemPreview() {
     MusicItem(
-        id = "1",
+        id = 1L,
         title = "Music",
         artist = "Artista 1",
         cover = Uri.parse("android.resource://com.andersonzero0.appmusic/drawable/img1"),

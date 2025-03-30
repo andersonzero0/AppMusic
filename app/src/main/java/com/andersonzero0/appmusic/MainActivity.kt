@@ -41,6 +41,7 @@ import com.andersonzero0.appmusic.ui.theme.AppMusicTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.components.navbar.Navbar
 import com.andersonzero0.appmusic.ui.components.player.PlayerFooter
 import com.andersonzero0.appmusic.ui.route.Route
@@ -48,7 +49,6 @@ import com.andersonzero0.appmusic.ui.route.mainGraph
 import com.andersonzero0.appmusic.ui.route.authGraph
 import com.andersonzero0.appmusic.ui.route.navBarRoutes
 import com.andersonzero0.appmusic.ui.route.routesWithGoBack
-import com.andersonzero0.appmusic.ui.screen.main.home.HomeViewModel
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 class MainActivity : ComponentActivity() {
@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-                val homeViewModel by viewModels<HomeViewModel>()
-                val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+                val musicViewModel: MusicViewModel by viewModels()
+                val musicUiState by musicViewModel.uiState.collectAsStateWithLifecycle()
 
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -77,10 +77,14 @@ class MainActivity : ComponentActivity() {
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = listOf(
-                                        colorMusic.copy(alpha = 0.2f),
+                                        if (colorMusic != Color.Unspecified) {
+                                            colorMusic.copy(alpha = 0.2f)
+                                        } else {
+                                            Color.Transparent
+                                        },
                                         Color.Transparent
                                     ),
-                                    start = Offset(0f, 0f),
+                                    start = Offset(100f, 100f),
                                     end = Offset(1000f, 1000f)
                                 )
                             )
@@ -137,9 +141,10 @@ class MainActivity : ComponentActivity() {
                             },
                             bottomBar = {
                                 Column {
-                                    if (currentRoute != Route.PlayMusic.name) {
+                                    if (currentRoute != Route.PlayMusic.name && musicUiState.selectedMusic != null) {
                                         PlayerFooter(
                                             navigationBar = !shouldShowBottomBar(currentRoute),
+                                            music = musicUiState.selectedMusic!!,
                                         )
                                     }
                                     if (shouldShowBottomBar(currentRoute)) {
@@ -159,7 +164,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             ) {
                                 authGraph(navController)
-                                mainGraph(navController, homeViewModel, homeUiState)
+                                mainGraph(navController, musicViewModel)
                             }
                         }
                     }

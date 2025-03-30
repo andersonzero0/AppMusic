@@ -31,14 +31,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.shouldShowBottomBar
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 @Composable
-fun PlayerFooter(navigationBar: Boolean = true) {
+fun PlayerFooter(navigationBar: Boolean = true, music: Music) {
     Row(
         modifier = if (navigationBar) Modifier
             .fillMaxWidth()
@@ -65,9 +69,10 @@ fun PlayerFooter(navigationBar: Boolean = true) {
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.img5),
-            contentDescription = "cover",
+        AsyncImage(
+            model = music.albumArtUri, contentDescription = "cover",
+            placeholder = painterResource(id = R.drawable.img5),
+            error = painterResource(id = R.drawable.img5),
             modifier = Modifier
                 .fillMaxHeight()
                 .aspectRatio(1f, matchHeightConstraintsFirst = true)
@@ -82,14 +87,18 @@ fun PlayerFooter(navigationBar: Boolean = true) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "Amanhacer",
+                text = music.title,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "BK'",
+                text = music.artist,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             DraggableProgressIndicator(activeBall = false)
         }
@@ -120,5 +129,13 @@ fun PlayerFooter(navigationBar: Boolean = true) {
 @Composable
 fun PlayerFooterPreview() {
     PlayerFooter(
+        music = Music(
+            id = 1,
+            title = "Amanhacer",
+            artist = "BK'",
+            duration = "03:45",
+            path = "",
+            albumArtUri = "".toUri(),
+        )
     )
 }

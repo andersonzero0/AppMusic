@@ -1,44 +1,54 @@
 package com.andersonzero0.appmusic.ui.components.list_musics
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Shuffle
-import androidx.compose.material.icons.sharp.PlayCircleFilled
-import androidx.compose.material.icons.sharp.Shuffle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.model.Music
+import kotlinx.coroutines.delay
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListMusics(modifier: Modifier = Modifier, musics: List<Music>, onNavigateToPlayMusic: (String) -> Unit = {}) {
+fun ListMusics(
+    modifier: Modifier = Modifier,
+    musics: List<Music>,
+    tempMusics: List<Music> = emptyList(),
+    onNavigateToPlayMusic: (Long) -> Unit = {},
+    onSearch: (String) -> Unit = {},
+) {
+
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(searchQuery) {
+        delay(500)
+        onSearch(searchQuery)
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -53,67 +63,58 @@ fun ListMusics(modifier: Modifier = Modifier, musics: List<Music>, onNavigateToP
         }
 
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SearchBar(
-                    modifier = Modifier
-                        .weight(1f),
-                    query = "",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = false,
-                    onActiveChange = {},
-                    windowInsets = WindowInsets.ime,
-                    placeholder = {
-                        Text(
-                            text = "Buscar",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Search,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .width(24.dp)
-                                .aspectRatio(1f, matchHeightConstraintsFirst = true)
-                                .clip(MaterialTheme.shapes.small)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Shuffle,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .width(24.dp)
-                                .aspectRatio(1f, matchHeightConstraintsFirst = true)
-                                .clip(MaterialTheme.shapes.small)
-                        )
-                    },
-                    colors = SearchBarDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
 
-                    ),
-                ) {
+            SearchBar(
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = searchQuery,
+                        onQueryChange = {
+                            searchQuery = it
+                        },
+                        onSearch = {
+                        },
+                        expanded = false,
+                        onExpandedChange = {},
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = null
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                val randomMusic: Music = musics.random()
 
-                }
-            }
+                                onNavigateToPlayMusic(randomMusic.id)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Shuffle,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp).clip(MaterialTheme.shapes.large),
+                windowInsets = WindowInsets.ime,
+                colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                ),
+            ) {}
         }
 
-        items(items = musics, key = { it.id }) {
+        items(items = if (searchQuery.isNotEmpty()) tempMusics else musics) { music ->
             MusicItem(
-                id = it.id.toString(),
-                title = it.title,
-                artist = it.artist,
-                cover = it.albumArtUri,
-                duration = it.duration,
-                onClick = { onNavigateToPlayMusic("Música") },
+                id = music.id,
+                title = music.title,
+                artist = music.artist,
+                cover = music.albumArtUri,
+                duration = music.duration,
+                onClick = { onNavigateToPlayMusic(music.id) },
             )
         }
     }

@@ -7,25 +7,27 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
+import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.screen.main.explore.ExploreScreen
 import com.andersonzero0.appmusic.ui.screen.main.home.HomeScreen
-import com.andersonzero0.appmusic.ui.screen.main.home.HomeUiState
-import com.andersonzero0.appmusic.ui.screen.main.home.HomeViewModel
 import com.andersonzero0.appmusic.ui.screen.main.play_music.PlayMusicScreen
 import com.andersonzero0.appmusic.ui.screen.main.profile.ProfileScreen
 
 
-fun NavGraphBuilder.mainGraph(navController: NavController, homeViewModel: HomeViewModel, homeUiState: HomeUiState) {
+fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: MusicViewModel) {
 
     navigation(startDestination = Route.Home.name, route = "main") {
         composable(Route.Home.name) {
             HomeScreen(
                 onNavigateToPlayMusic = { musicId ->
+                    musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(musicId))
+
                     navController.navigate(Route.PlayMusic.name)
                 },
-                uiState = homeUiState,
-                onEvent = homeViewModel::onEvent,
+                musicViewModel = musicViewModel,
             )
         }
         composable(Route.Explore.name) {
@@ -35,7 +37,14 @@ fun NavGraphBuilder.mainGraph(navController: NavController, homeViewModel: HomeV
 //            ProfileScreen()
 //        }
         composable(Route.PlayMusic.name) {
-            PlayMusicScreen(cover = R.drawable.img5)
+            val selectedMusic = musicViewModel.uiState.collectAsStateWithLifecycle().value.selectedMusic
+
+            if (selectedMusic == null) {
+                navController.popBackStack(Route.Home.name, inclusive = false)
+                return@composable
+            }
+
+            PlayMusicScreen(selectedMusic)
         }
     }
 }

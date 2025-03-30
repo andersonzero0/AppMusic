@@ -21,7 +21,7 @@ fun Navbar(navController: NavController, navBarRoutes: List<NavBarRoute>) {
         containerColor = if (colorMusic != Color.Unspecified) {
             colorMusic.copy(alpha = 0.2f)
         } else {
-            MaterialTheme.colorScheme.surface
+            MaterialTheme.colorScheme.surfaceContainer
         },
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
