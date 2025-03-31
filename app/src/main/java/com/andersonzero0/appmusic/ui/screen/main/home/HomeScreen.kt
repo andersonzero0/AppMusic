@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.andersonzero0.appmusic.core.permissions.AudioPermission
+import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.components.list_musics.ListMusics
@@ -40,7 +41,7 @@ import com.andersonzero0.appmusic.ui.components.screen.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavigateToPlayMusic: (Long) -> Unit,
+    onNavigateToPlayMusic: (Music) -> Unit,
     musicViewModel: MusicViewModel = viewModel(),
 ) {
     val context = LocalContext.current

@@ -11,7 +11,10 @@ import java.util.Locale
 class MusicPlayerService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var currentMusic: Music? = null
+    private var playlist: List<Music>? = null
     private var isPrepared = false
+
+    var onMusicChangeListener: ((Music?) -> Unit)? = null
 
     companion object {
         const val ACTION_PLAY = "action_play"
@@ -24,11 +27,11 @@ class MusicPlayerService : Service() {
     }
 
     override fun onCreate() {
-        super.onCreate();
-        mediaPlayer = MediaPlayer();
-        mediaPlayer?.isLooping = true;
+        super.onCreate()
+        mediaPlayer = MediaPlayer().apply {
+            isLooping = true
+        }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer?.release()
@@ -42,8 +45,11 @@ class MusicPlayerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
-    fun playMusic(music: Music) {
+    fun playMusic(music: Music, playlist: List<Music>? = null) {
         currentMusic = music
+        playlist?.let { this.playlist = it }
+
+        onMusicChangeListener?.invoke(currentMusic)
 
         mediaPlayer?.apply {
             reset()
@@ -63,6 +69,10 @@ class MusicPlayerService : Service() {
         return mediaPlayer?.isPlaying ?: false
     }
 
+    fun getPlaylist(): List<Music>? {
+        return playlist
+    }
+
     fun play() {
         if (!isPrepared && currentMusic != null) {
             playMusic(currentMusic!!)
@@ -75,16 +85,40 @@ class MusicPlayerService : Service() {
         mediaPlayer?.pause()
     }
 
+    private fun getNextMusic(): Music? {
+        val currentIndex = playlist?.indexOf(currentMusic)
+        return if (currentIndex != null && currentIndex < playlist!!.size - 1) {
+            playlist!![currentIndex + 1]
+        } else {
+            null
+        }
+    }
+
+    private fun getPreviousMusic(): Music? {
+        val currentIndex = playlist?.indexOf(currentMusic)
+        return if (currentIndex != null && currentIndex > 0) {
+            playlist!![currentIndex - 1]
+        } else {
+            null
+        }
+    }
+
+    fun hasNextMusic(): Boolean {
+        return getNextMusic() != null
+    }
+
+    fun hasPreviousMusic(): Boolean {
+        return getPreviousMusic() != null
+    }
+
     fun skipToNext() {
-        // Implement your logic to get next music
-        // val nextMusic = getNextMusic()
-        // nextMusic?.let { playMusic(it) }
+         val nextMusic = getNextMusic()
+         nextMusic?.let { playMusic(it) }
     }
 
     fun skipToPrevious() {
-        // Implement your logic to get previous music
-        // val prevMusic = getPreviousMusic()
-        // prevMusic?.let { playMusic(it) }
+         val prevMusic = getPreviousMusic()
+         prevMusic?.let { playMusic(it) }
     }
 
     fun seekTo(position: Int) {

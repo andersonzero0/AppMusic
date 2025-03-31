@@ -22,8 +22,8 @@ fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: Musi
     navigation(startDestination = Route.Home.name, route = "main") {
         composable(Route.Home.name) {
             HomeScreen(
-                onNavigateToPlayMusic = { musicId ->
-                    musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(musicId))
+                onNavigateToPlayMusic = { music ->
+                    musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(music))
 
                     navController.navigate(Route.PlayMusic.name)
                 },
@@ -37,14 +37,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: Musi
 //            ProfileScreen()
 //        }
         composable(Route.PlayMusic.name) {
-            val selectedMusic = musicViewModel.uiState.collectAsStateWithLifecycle().value.selectedMusic
-
-            if (selectedMusic == null) {
-                navController.popBackStack(Route.Home.name, inclusive = false)
-                return@composable
-            }
-
-            PlayMusicScreen(selectedMusic, musicViewModel = musicViewModel)
+            PlayMusicScreen(musicViewModel = musicViewModel)
         }
     }
 }

@@ -30,6 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,34 +52,35 @@ import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.model.Music
+import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.services.toTimeFormat
+import com.andersonzero0.appmusic.ui.components.player.ControllerPlayer
 import com.andersonzero0.appmusic.ui.components.screen.Screen
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 @Composable
 fun PlayMusicScreen(
-    selectedMusic: Music,
     musicViewModel: MusicViewModel
 ) {
     Screen {
-
         val context = LocalContext.current
-        val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
-        val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
+        val currentMusic by musicViewModel.currentMusicState.collectAsStateWithLifecycle()
 
-        LaunchedEffect(selectedMusic.albumArtUri) {
-            if (selectedMusic != musicViewModel.getCurrentMusic()) musicViewModel.playMusic(selectedMusic)
+        LaunchedEffect(key1 = currentMusic) {
 
-            selectedMusic.albumArtUri.let { uri ->
+            currentMusic?.albumArtUri.let { uri ->/**/
                 runCatching {
-                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        val palette = Palette.from(bitmap).generate()
+                    uri?.let {
+                        context.contentResolver.openInputStream(it)?.use { inputStream ->
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            val palette = Palette.from(bitmap).generate()
 
-                        val colorVibrant = Color(palette.getDarkVibrantColor(Color.Gray.toArgb()))
+                            val colorVibrant =
+                                Color(palette.getDarkVibrantColor(Color.White.toArgb()))
 
-                        colorVibrant
+                            colorVibrant
+                        }
                     }
                 }.onSuccess { result ->
                     colorMusic = result ?: Color.Unspecified
@@ -94,10 +98,10 @@ fun PlayMusicScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = selectedMusic.albumArtUri,
+                model = currentMusic?.albumArtUri,
                 contentDescription = "cover",
-                placeholder = painterResource(id = R.drawable.img5),
-                error = painterResource(id = R.drawable.img5),
+                placeholder = painterResource(id = R.drawable.music_placeholder),
+                error = painterResource(id = R.drawable.music_placeholder),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .aspectRatio(1f, matchHeightConstraintsFirst = true)
@@ -106,25 +110,31 @@ fun PlayMusicScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = selectedMusic.title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+
+            currentMusic?.let {
+                Text(
+                    text = it.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = selectedMusic.artist,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Light,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            currentMusic?.let {
+                Text(
+                    text = it.artist,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,86 +162,14 @@ fun PlayMusicScreen(
                     }
                 }
 
-
-                DraggableProgressIndicator(
-                    progress = currentPosition.toFloat() / selectedMusic.duration,
-                    onProgressChange = {
-                        musicViewModel.seekTo((it * selectedMusic.duration).toInt())
-                    },
-                    activeBall = true,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = currentPosition.toTimeFormat(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Light,
-                    )
-
-                    Text(
-                        text = selectedMusic.duration.toTimeFormat(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Light,
+                currentMusic?.let {
+                    ControllerPlayer(
+                        musicViewModel = musicViewModel, duration = it.duration,
+                        onProgressChange = {
+                            musicViewModel.onEvent(MusicUiEvent.OnSeekTo((it * currentMusic!!.duration).toInt()))
+                        },
                     )
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(modifier = Modifier.size(32.dp), onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.Shuffle,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(modifier = Modifier.size(40.dp), onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.SkipPrevious,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(modifier = Modifier.size(64.dp), onClick = {
-                        musicViewModel.playPause()
-                    }) {
-                        Icon(
-                            if (isPlaying) Icons.Sharp.PauseCircle else Icons.Sharp.PlayCircleFilled,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(modifier = Modifier.size(40.dp), onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.SkipNext,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    IconButton(modifier = Modifier.size(32.dp), onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.Repeat,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                }
-
             }
         }
     }
@@ -241,14 +179,6 @@ fun PlayMusicScreen(
 @Composable
 fun PlayMusicScreenPreview() {
     PlayMusicScreen(
-        selectedMusic = Music(
-            id = 1,
-            title = "Feeling Lonely",
-            artist = "BK'",
-            duration = 120,
-            path = "content://media/external/audio/media/1",
-            albumArtUri = "content://media/external/audio/albumart/1".toUri(),
-        ),
         musicViewModel = MusicViewModel(Application()) // Use a mock or test instance of MusicViewModel
     )
 }

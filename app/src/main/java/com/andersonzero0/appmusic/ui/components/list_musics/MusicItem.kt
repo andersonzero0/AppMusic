@@ -54,8 +54,8 @@ fun MusicItem(
         ) {
             AsyncImage(
                 model = cover, contentDescription = "cover",
-                placeholder = painterResource(id = R.drawable.img5),
-                error = painterResource(id = R.drawable.img5),
+                placeholder = painterResource(id = R.drawable.music_placeholder),
+                error = painterResource(id = R.drawable.music_placeholder),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .width(52.dp)

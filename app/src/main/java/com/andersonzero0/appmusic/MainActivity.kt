@@ -64,7 +64,6 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
 
                 val musicViewModel: MusicViewModel by viewModels()
-                val musicUiState by musicViewModel.uiState.collectAsStateWithLifecycle()
 
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -148,11 +147,19 @@ class MainActivity : ComponentActivity() {
                             },
                             bottomBar = {
                                 Column {
-                                    if (currentRoute != Route.PlayMusic.name && musicUiState.selectedMusic != null) {
+                                    if (currentRoute != Route.PlayMusic.name) {
                                         PlayerFooter(
                                             navigationBar = !shouldShowBottomBar(currentRoute),
-                                            music = musicUiState.selectedMusic!!,
                                             musicViewModel = musicViewModel,
+                                            onNavigateToPlayMusic = {
+                                                navController.navigate(Route.PlayMusic.name) {
+                                                    popUpTo(Route.Home.name) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
+                                                }
+                                            }
                                         )
                                     }
                                     if (shouldShowBottomBar(currentRoute)) {

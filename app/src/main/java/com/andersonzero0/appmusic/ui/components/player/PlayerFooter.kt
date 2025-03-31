@@ -3,6 +3,7 @@ package com.andersonzero0.appmusic.ui.components.player
 import DraggableProgressIndicator
 import android.app.Application
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.sharp.PlayCircleFilled
 import androidx.compose.material.icons.sharp.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,14 +43,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.model.Music
+import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
+import com.andersonzero0.appmusic.data.view_model.music.MusicUiState
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 @Composable
-fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: MusicViewModel) {
+fun PlayerFooter(
+    navigationBar: Boolean = true,
+    musicViewModel: MusicViewModel,
+    onNavigateToPlayMusic: () -> Unit = {}
+) {
+
+    val music = musicViewModel.currentMusicState.collectAsStateWithLifecycle().value
+        ?: return;
 
     val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
     val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
+    val hasNextMusic by musicViewModel.hasNextMusicState.collectAsStateWithLifecycle()
 
     Row(
         modifier = if (navigationBar) Modifier
@@ -62,7 +74,11 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: Mu
             )
             .navigationBarsPadding()
             .height(86.dp)
-            .padding(16.dp) else Modifier
+            .clickable {
+                onNavigateToPlayMusic()
+            }
+            .padding(16.dp)
+             else Modifier
             .fillMaxWidth()
             .background(
                 if (colorMusic != Color.Unspecified) {
@@ -72,14 +88,17 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: Mu
                 },
             )
             .height(86.dp)
+            .clickable {
+                onNavigateToPlayMusic()
+            }
             .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = music.albumArtUri, contentDescription = "cover",
-            placeholder = painterResource(id = R.drawable.img5),
-            error = painterResource(id = R.drawable.img5),
+            placeholder = painterResource(id = R.drawable.music_placeholder),
+            error = painterResource(id = R.drawable.music_placeholder),
             modifier = Modifier
                 .fillMaxHeight()
                 .aspectRatio(1f, matchHeightConstraintsFirst = true)
@@ -107,16 +126,24 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: Mu
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            DraggableProgressIndicator(activeBall = false, progress = currentPosition.toFloat() / music.duration,
+            DraggableProgressIndicator(
+                activeBall = false, progress = currentPosition.toFloat() / music.duration,
                 onProgressChange = {
                     musicViewModel.seekTo((it * music.duration).toInt())
-                },)
+                },
+            )
         }
 
         Row {
             IconButton(modifier = Modifier.size(40.dp), onClick = {
-                musicViewModel.playPause()
-            }) {
+                musicViewModel.onEvent(MusicUiEvent.OnPlayPause)
+            }, enabled = hasNextMusic, colors = IconButtonColors(
+                disabledContentColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                disabledContainerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.Transparent
+            )
+            ) {
                 Icon(
                     if (isPlaying) Icons.Sharp.Pause else Icons.Sharp.PlayArrow,
                     contentDescription = "AppMusic",
@@ -125,7 +152,9 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: Mu
                 )
             }
 
-            IconButton(modifier = Modifier.size(40.dp), onClick = { /*TODO*/ }) {
+            IconButton(modifier = Modifier.size(40.dp), onClick = {
+                musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
+            }) {
                 Icon(
                     Icons.Sharp.SkipNext,
                     contentDescription = "AppMusic",
@@ -141,14 +170,6 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: Mu
 @Composable
 fun PlayerFooterPreview() {
     PlayerFooter(
-        music = Music(
-            id = 1,
-            title = "Amanhacer",
-            artist = "BK'",
-            duration = 0,
-            path = "",
-            albumArtUri = "".toUri(),
-        ),
         musicViewModel = MusicViewModel(application = Application()),
     )
 }

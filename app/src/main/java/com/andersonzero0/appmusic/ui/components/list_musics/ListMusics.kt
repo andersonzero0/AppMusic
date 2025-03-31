@@ -38,7 +38,7 @@ fun ListMusics(
     modifier: Modifier = Modifier,
     musics: List<Music>,
     tempMusics: List<Music> = emptyList(),
-    onNavigateToPlayMusic: (Long) -> Unit = {},
+    onNavigateToPlayMusic: (Music) -> Unit = {},
     onSearch: (String) -> Unit = {},
 ) {
 
@@ -85,7 +85,7 @@ fun ListMusics(
                             IconButton(onClick = {
                                 val randomMusic: Music = musics.random()
 
-                                onNavigateToPlayMusic(randomMusic.id)
+                                onNavigateToPlayMusic(randomMusic)
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Shuffle,
@@ -114,7 +114,7 @@ fun ListMusics(
                 artist = music.artist,
                 cover = music.albumArtUri,
                 duration = music.duration,
-                onClick = { onNavigateToPlayMusic(music.id) },
+                onClick = { onNavigateToPlayMusic(music) },
             )
         }
     }

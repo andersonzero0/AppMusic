@@ -38,6 +38,15 @@ class MusicViewModel(
     private val _currentPositionState = MutableStateFlow(0)
     val currentPositionState: StateFlow<Int> = _currentPositionState.asStateFlow()
 
+    private var _currentMusicState = MutableStateFlow<Music?>(null)
+    var currentMusicState: StateFlow<Music?> = _currentMusicState.asStateFlow()
+
+    private var _hasNextMusicState = MutableStateFlow(false)
+    var hasNextMusicState: StateFlow<Boolean> = _hasNextMusicState.asStateFlow()
+
+    private var _hasPreviousMusicState = MutableStateFlow(false)
+    var hasPreviousMusicState: StateFlow<Boolean> = _hasPreviousMusicState.asStateFlow()
+
     private var positionUpdaterJob: Job? = null
 
     private fun startPositionUpdater() {
@@ -45,6 +54,7 @@ class MusicViewModel(
         positionUpdaterJob = viewModelScope.launch {
             while (true) {
                 _currentPositionState.value = musicService?.getCurrentPosition() ?: 0
+
                 delay(500)
             }
         }
@@ -55,6 +65,13 @@ class MusicViewModel(
             val binder = service as MusicPlayerService.LocalBinder
             musicService = binder.getService()
             serviceBound = true
+
+            musicService?.onMusicChangeListener = { newMusic ->
+                _currentMusicState.value = newMusic
+                _hasNextMusicState.value = musicService?.hasNextMusic() ?: false
+                _hasPreviousMusicState.value = musicService?.hasPreviousMusic() ?: false
+            }
+
             startPositionUpdater()
         }
 
@@ -75,8 +92,15 @@ class MusicViewModel(
     fun onEvent(event: MusicUiEvent) {
         when (event) {
             is MusicUiEvent.OnFetchMusics -> fetchMusics(event.context)
-            is MusicUiEvent.OnSelectMusic -> onMusicSelected(event.musicId)
+            is MusicUiEvent.OnSelectMusic -> {
+                    playMusic(event.music, uiState.value.musics)
+            }
             is MusicUiEvent.OnSearch -> searchMusics(event.query)
+            is MusicUiEvent.OnPlayMusic -> playMusic(event.music, event.playlist)
+            is MusicUiEvent.OnPlayPause -> playPause()
+            is MusicUiEvent.OnSeekTo -> seekTo(event.position)
+            is MusicUiEvent.OnSkipToNext -> skipToNext()
+            is MusicUiEvent.OnSkipToPrevious -> skipToPrevious()
         }
     }
 
@@ -113,21 +137,6 @@ class MusicViewModel(
         }
     }
 
-    private fun onMusicSelected(musicId: Long) {
-        viewModelScope.launch {
-            _uiState.update { currentUiState ->
-                val selectedMusic = currentUiState.musics.find { it.id == musicId }
-                currentUiState.copy(
-                    selectedMusic = selectedMusic
-                )
-            }
-        }
-    }
-
-    fun isPlaying(): Boolean {
-        return musicService?.isPlaying() ?: false
-    }
-
     fun playPause() {
         if (musicService?.isPlaying() == true) {
             musicService?.pause()
@@ -138,21 +147,37 @@ class MusicViewModel(
         }
     }
 
-    fun playMusic(music: Music) {
-        musicService?.playMusic(music)
+    private fun playMusic(music: Music, playlist: List<Music>) {
+        if(music.id == getCurrentMusic()?.id) {
+            return
+        }
+
+        musicService?.playMusic(music, playlist)
         _isPlayingState.value = true
     }
 
-    fun getDuration(): Int {
-        return musicService?.getDuration() ?: 0
-    }
-
-    fun getCurrentMusic(): Music? {
+    private fun getCurrentMusic(): Music? {
         return musicService?.getCurrentMusic()
     }
 
     fun seekTo(position: Int) {
         musicService?.seekTo(position)
+    }
+
+    fun skipToNext() {
+        musicService?.skipToNext()
+    }
+
+    fun hasNext(): Boolean {
+        return musicService?.hasNextMusic() ?: false
+    }
+
+    fun skipToPrevious() {
+        musicService?.skipToPrevious()
+    }
+
+    fun hasPrevious(): Boolean {
+        return musicService?.hasPreviousMusic() ?: false
     }
 
     override fun onCleared() {

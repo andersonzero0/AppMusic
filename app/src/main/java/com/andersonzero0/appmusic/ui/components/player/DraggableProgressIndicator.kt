@@ -63,7 +63,7 @@ fun DraggableProgressIndicator(
             .height(40.dp)
             .onSizeChanged { containerWidth.intValue = it.width }
             .pointerInput(Unit) {
-                detectTapGestures { tapOffset ->
+                if (activeBall) detectTapGestures { tapOffset ->
                     if (containerWidth.intValue > 0) {
                         val newProgress = (tapOffset.x / containerWidth.intValue).coerceIn(0f, 1f)
                         onProgressChange(newProgress)
