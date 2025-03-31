@@ -60,7 +60,7 @@ class AudioService {
                 val title = it.getString(titleIndex) ?: "Sem título"
                 val artist = if (artistIndex != -1) it.getString(artistIndex) ?: "Desconhecido" else "Desconhecido"
 
-                val duration = if (durationIndex == -1) 0L else it.getLong(durationIndex)
+                val duration = if (durationIndex == -1) 0 else it.getInt(durationIndex)
 
                 if (!isDurationValid(duration)) {
                     continue
@@ -68,13 +68,12 @@ class AudioService {
 
                 val durationFormat = duration.toTimeFormat()
 
-
                 val path = it.getString(dataIndex) ?: ""
                 val albumId = if (albumIdIndex != -1) it.getLong(albumIdIndex) else 0L
 
                 val albumArtUri = getAlbumCoverUri(context, albumId)
 
-                listMusics.add(Music(id, title, artist, durationFormat, path, albumArtUri))
+                listMusics.add(Music(id, title, artist, duration, path, albumArtUri))
             }
         }
 
@@ -85,14 +84,14 @@ class AudioService {
     }
 }
 
-fun Long.toTimeFormat(): String {
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(this)
-    val seconds = TimeUnit.MILLISECONDS.toSeconds(this) % 60
+fun Int.toTimeFormat(): String {
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(this.toLong())
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(this.toLong()) % 60
     return String.format(Locale.ENGLISH ,"%02d:%02d", minutes, seconds)
 }
 
 
-fun isDurationValid(duration: Long): Boolean {
+fun isDurationValid(duration: Int): Boolean {
     return duration > 30_000
 }
 

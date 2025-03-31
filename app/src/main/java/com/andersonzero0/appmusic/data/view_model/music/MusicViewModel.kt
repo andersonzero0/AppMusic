@@ -1,9 +1,19 @@
 package com.andersonzero0.appmusic.data.view_model.music
 
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.ComponentName
 import android.content.Context
-import androidx.lifecycle.ViewModel
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.services.AudioService
+import com.andersonzero0.appmusic.services.MusicPlayerService
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,11 +21,56 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MusicViewModel(
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
+    private var serviceBound = false
+
+    private val audioService: AudioService = AudioService()
+    @SuppressLint("StaticFieldLeak")
+    private var musicService: MusicPlayerService? = null
+
     private val _uiState = MutableStateFlow(MusicUiState())
     val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
 
-    private val audioService: AudioService = AudioService()
+    private val _isPlayingState = MutableStateFlow(false)
+    val isPlayingState: StateFlow<Boolean> = _isPlayingState.asStateFlow()
+
+    private val _currentPositionState = MutableStateFlow(0)
+    val currentPositionState: StateFlow<Int> = _currentPositionState.asStateFlow()
+
+    private var positionUpdaterJob: Job? = null
+
+    private fun startPositionUpdater() {
+        positionUpdaterJob?.cancel()
+        positionUpdaterJob = viewModelScope.launch {
+            while (true) {
+                _currentPositionState.value = musicService?.getCurrentPosition() ?: 0
+                delay(500)
+            }
+        }
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as MusicPlayerService.LocalBinder
+            musicService = binder.getService()
+            serviceBound = true
+            startPositionUpdater()
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            serviceBound = false
+            musicService = null
+            positionUpdaterJob?.cancel()
+        }
+    }
+
+    fun bindService(context: Context) {
+        Intent(context, MusicPlayerService::class.java).also { intent ->
+            context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            context.startService(intent)
+        }
+    }
 
     fun onEvent(event: MusicUiEvent) {
         when (event) {
@@ -26,6 +81,7 @@ class MusicViewModel(
     }
 
     private fun fetchMusics(context: Context) {
+
         viewModelScope.launch {
             _uiState.update { currentUiState ->
                 audioService.getAllAudios(context).fold(
@@ -65,6 +121,45 @@ class MusicViewModel(
                     selectedMusic = selectedMusic
                 )
             }
+        }
+    }
+
+    fun isPlaying(): Boolean {
+        return musicService?.isPlaying() ?: false
+    }
+
+    fun playPause() {
+        if (musicService?.isPlaying() == true) {
+            musicService?.pause()
+            _isPlayingState.value = false
+        } else {
+            musicService?.play()
+            _isPlayingState.value = true
+        }
+    }
+
+    fun playMusic(music: Music) {
+        musicService?.playMusic(music)
+        _isPlayingState.value = true
+    }
+
+    fun getDuration(): Int {
+        return musicService?.getDuration() ?: 0
+    }
+
+    fun getCurrentMusic(): Music? {
+        return musicService?.getCurrentMusic()
+    }
+
+    fun seekTo(position: Int) {
+        musicService?.seekTo(position)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (serviceBound) {
+            getApplication<Application>().unbindService(connection)
+            serviceBound = false
         }
     }
 }

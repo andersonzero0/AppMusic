@@ -1,7 +1,7 @@
 package com.andersonzero0.appmusic.ui.components.player
 
 import DraggableProgressIndicator
-import androidx.compose.foundation.Image
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,16 +14,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.Pause
+import androidx.compose.material.icons.sharp.PauseCircle
 import androidx.compose.material.icons.sharp.PlayArrow
-import androidx.compose.material.icons.sharp.Repeat
+import androidx.compose.material.icons.sharp.PlayCircleFilled
 import androidx.compose.material.icons.sharp.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,14 +37,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.model.Music
-import com.andersonzero0.appmusic.shouldShowBottomBar
+import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 @Composable
-fun PlayerFooter(navigationBar: Boolean = true, music: Music) {
+fun PlayerFooter(navigationBar: Boolean = true, music: Music, musicViewModel: MusicViewModel) {
+
+    val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
+    val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
+
     Row(
         modifier = if (navigationBar) Modifier
             .fillMaxWidth()
@@ -100,13 +107,18 @@ fun PlayerFooter(navigationBar: Boolean = true, music: Music) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            DraggableProgressIndicator(activeBall = false)
+            DraggableProgressIndicator(activeBall = false, progress = currentPosition.toFloat() / music.duration,
+                onProgressChange = {
+                    musicViewModel.seekTo((it * music.duration).toInt())
+                },)
         }
 
         Row {
-            IconButton(modifier = Modifier.size(40.dp), onClick = { /*TODO*/ }) {
+            IconButton(modifier = Modifier.size(40.dp), onClick = {
+                musicViewModel.playPause()
+            }) {
                 Icon(
-                    Icons.Sharp.PlayArrow,
+                    if (isPlaying) Icons.Sharp.Pause else Icons.Sharp.PlayArrow,
                     contentDescription = "AppMusic",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxSize()
@@ -133,9 +145,10 @@ fun PlayerFooterPreview() {
             id = 1,
             title = "Amanhacer",
             artist = "BK'",
-            duration = "03:45",
+            duration = 0,
             path = "",
             albumArtUri = "".toUri(),
-        )
+        ),
+        musicViewModel = MusicViewModel(application = Application()),
     )
 }

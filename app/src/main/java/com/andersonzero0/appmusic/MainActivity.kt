@@ -28,12 +28,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +68,12 @@ class MainActivity : ComponentActivity() {
 
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                val context = LocalContext.current
+
+                LaunchedEffect(Unit) {
+                    musicViewModel.bindService(context)
+                }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -89,7 +97,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                     ) {
-
                         Scaffold(
                             topBar = {
                                 TopAppBar(
@@ -145,6 +152,7 @@ class MainActivity : ComponentActivity() {
                                         PlayerFooter(
                                             navigationBar = !shouldShowBottomBar(currentRoute),
                                             music = musicUiState.selectedMusic!!,
+                                            musicViewModel = musicViewModel,
                                         )
                                     }
                                     if (shouldShowBottomBar(currentRoute)) {

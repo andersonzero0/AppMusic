@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.services.toTimeFormat
 
 @Composable
 fun MusicItem(
@@ -35,7 +36,7 @@ fun MusicItem(
     title: String,
     artist: String,
     cover: Uri?,
-    duration: String,
+    duration: Int,
     onClick: (Long) -> Unit = {}
 ) {
     Row(
@@ -91,7 +92,7 @@ fun MusicItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = duration, style = MaterialTheme.typography.bodySmall)
+            Text(text = duration.toTimeFormat(), style = MaterialTheme.typography.bodySmall)
             Icon(
                 Icons.Outlined.PlayCircle,
                 contentDescription = "AppMusic",
@@ -113,6 +114,6 @@ fun MusicItemPreview() {
         title = "Music",
         artist = "Artista 1",
         cover = Uri.parse("android.resource://com.andersonzero0.appmusic/drawable/img1"),
-        duration = "3:30"
+        duration = 120,
     )
 }

@@ -1,15 +1,10 @@
 package com.andersonzero0.appmusic.ui.screen.main.play_music
 
 import DraggableProgressIndicator
+import android.app.Application
 import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.ProgressBar
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +12,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Favorite
 import androidx.compose.material.icons.sharp.IosShare
@@ -34,56 +25,56 @@ import androidx.compose.material.icons.sharp.SkipNext
 import androidx.compose.material.icons.sharp.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.model.Music
+import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
+import com.andersonzero0.appmusic.services.toTimeFormat
 import com.andersonzero0.appmusic.ui.components.screen.Screen
 import com.andersonzero0.appmusic.ui.theme.colorMusic
-import kotlin.math.roundToInt
 
 @Composable
 fun PlayMusicScreen(
     selectedMusic: Music,
+    musicViewModel: MusicViewModel
 ) {
     Screen {
 
         val context = LocalContext.current
+        val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
+        val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
 
         LaunchedEffect(selectedMusic.albumArtUri) {
+            if (selectedMusic != musicViewModel.getCurrentMusic()) musicViewModel.playMusic(selectedMusic)
+
             selectedMusic.albumArtUri.let { uri ->
                 runCatching {
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val bitmap = BitmapFactory.decodeStream(inputStream)
                         val palette = Palette.from(bitmap).generate()
 
-                        val colorVibrant = Color(palette.getDarkVibrantColor(Color.White.toArgb()))
+                        val colorVibrant = Color(palette.getDarkVibrantColor(Color.Gray.toArgb()))
 
                         colorVibrant
                     }
@@ -162,7 +153,14 @@ fun PlayMusicScreen(
                 }
 
 
-                DraggableProgressIndicator()
+                DraggableProgressIndicator(
+                    progress = currentPosition.toFloat() / selectedMusic.duration,
+                    onProgressChange = {
+                        musicViewModel.seekTo((it * selectedMusic.duration).toInt())
+                    },
+                    activeBall = true,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
 
                 Row(
                     modifier = Modifier
@@ -171,13 +169,13 @@ fun PlayMusicScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "0:00",
+                        text = currentPosition.toTimeFormat(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Light,
                     )
 
                     Text(
-                        text = selectedMusic.duration,
+                        text = selectedMusic.duration.toTimeFormat(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Light,
                     )
@@ -204,9 +202,11 @@ fun PlayMusicScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    IconButton(modifier = Modifier.size(64.dp), onClick = { /*TODO*/ }) {
+                    IconButton(modifier = Modifier.size(64.dp), onClick = {
+                        musicViewModel.playPause()
+                    }) {
                         Icon(
-                            Icons.Sharp.PauseCircle,
+                            if (isPlaying) Icons.Sharp.PauseCircle else Icons.Sharp.PlayCircleFilled,
                             contentDescription = "AppMusic",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.fillMaxSize()
@@ -245,9 +245,10 @@ fun PlayMusicScreenPreview() {
             id = 1,
             title = "Feeling Lonely",
             artist = "BK'",
-            duration = "3:45",
+            duration = 120,
             path = "content://media/external/audio/media/1",
             albumArtUri = "content://media/external/audio/albumart/1".toUri(),
-        )
+        ),
+        musicViewModel = MusicViewModel(Application()) // Use a mock or test instance of MusicViewModel
     )
 }

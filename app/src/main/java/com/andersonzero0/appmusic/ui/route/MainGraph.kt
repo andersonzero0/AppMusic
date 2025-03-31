@@ -44,7 +44,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: Musi
                 return@composable
             }
 
-            PlayMusicScreen(selectedMusic)
+            PlayMusicScreen(selectedMusic, musicViewModel = musicViewModel)
         }
     }
 }
