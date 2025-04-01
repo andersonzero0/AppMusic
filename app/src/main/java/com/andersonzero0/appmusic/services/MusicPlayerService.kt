@@ -253,7 +253,6 @@ class MusicPlayerService : Service() {
         val duration = getDuration().toLong()
         val currentPosition = getCurrentPosition().toLong()
 
-        // Atualiza o estado da MediaSession com informações de progresso
         val playbackState = PlaybackStateCompat.Builder()
             .setActions(
                 PlaybackStateCompat.ACTION_PLAY_PAUSE or
