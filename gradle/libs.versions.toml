@@ -13,7 +13,7 @@ uiTextGoogleFonts = "1.7.8"
 materialIconsExtended = "1.7.8"
 palette = "1.0.0"
 coil = "3.0.0-rc01"
-#accompanistFlowLayout = "0.20.0"
+media = "1.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,7 +35,7 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
-#accompanist-flow-layout = { group = "com.google.accompanist", name = "accompanist-flow-layout", version.ref = "accompanistFlowLayout" }
+androidx-media = { group = "androidx.media", name = "media", version.ref = "media" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

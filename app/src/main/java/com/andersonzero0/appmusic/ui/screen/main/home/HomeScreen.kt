@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.andersonzero0.appmusic.core.permissions.AudioPermission
+import com.andersonzero0.appmusic.core.permissions.NotificationPermission
 import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
@@ -52,6 +53,8 @@ fun HomeScreen(
             musicViewModel.onEvent(MusicUiEvent.OnFetchMusics(context))
         }
     )
+
+    NotificationPermission {}
 
     Screen(
         modifier = Modifier.fillMaxSize()

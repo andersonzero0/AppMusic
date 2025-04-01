@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.core.permissions.NotificationPermission
 import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
@@ -84,9 +85,6 @@ fun PlayMusicScreen(
                     }
                 }.onSuccess { result ->
                     colorMusic = result ?: Color.Unspecified
-                }.onFailure { e ->
-                    Log.e("PlayMusicScreen", "Erro ao carregar a capa: ${e.message}")
-                    colorMusic = Color.Unspecified
                 }
             }
         }

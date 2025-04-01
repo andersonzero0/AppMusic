@@ -54,7 +54,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.palette)
     implementation(libs.coil.compose)
-//    implementation(libs.accompanist.flow.layout)
+    implementation(libs.androidx.media)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

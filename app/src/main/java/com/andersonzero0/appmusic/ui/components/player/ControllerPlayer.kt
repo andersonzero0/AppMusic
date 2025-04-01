@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.sharp.QueueMusic
 import androidx.compose.material.icons.sharp.PauseCircle
 import androidx.compose.material.icons.sharp.PlayCircleFilled
+import androidx.compose.material.icons.sharp.QueueMusic
 import androidx.compose.material.icons.sharp.Repeat
 import androidx.compose.material.icons.sharp.Shuffle
 import androidx.compose.material.icons.sharp.SkipNext
@@ -72,7 +74,7 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
     ) {
         IconButton(modifier = Modifier.size(32.dp), onClick = { /*TODO*/ }) {
             Icon(
-                Icons.Sharp.Shuffle,
+                Icons.Sharp.Repeat,
                 contentDescription = "AppMusic",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxSize()
@@ -81,7 +83,7 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
         IconButton(modifier = Modifier.size(40.dp), onClick = {
             musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
         }, enabled = hasPreviousMusic, colors = IconButtonColors(
-            disabledContentColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            disabledContentColor = MaterialTheme.colorScheme.outline,
             disabledContainerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.primary,
             containerColor = Color.Transparent
@@ -105,7 +107,7 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
         IconButton(modifier = Modifier.size(40.dp), onClick = {
             musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
         }, enabled = hasNextMusic, colors = IconButtonColors(
-            disabledContentColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            disabledContentColor = MaterialTheme.colorScheme.outline,
             disabledContainerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.primary,
             containerColor = Color.Transparent
@@ -119,7 +121,7 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
 
         IconButton(modifier = Modifier.size(32.dp), onClick = { /*TODO*/ }) {
             Icon(
-                Icons.Sharp.Repeat,
+                Icons.AutoMirrored.Sharp.QueueMusic,
                 contentDescription = "AppMusic",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxSize()

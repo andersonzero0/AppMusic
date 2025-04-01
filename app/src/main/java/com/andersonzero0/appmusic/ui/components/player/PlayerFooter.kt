@@ -17,9 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Pause
-import androidx.compose.material.icons.sharp.PauseCircle
 import androidx.compose.material.icons.sharp.PlayArrow
-import androidx.compose.material.icons.sharp.PlayCircleFilled
 import androidx.compose.material.icons.sharp.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,13 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
-import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
-import com.andersonzero0.appmusic.data.view_model.music.MusicUiState
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 
@@ -56,7 +51,7 @@ fun PlayerFooter(
 ) {
 
     val music = musicViewModel.currentMusicState.collectAsStateWithLifecycle().value
-        ?: return;
+        ?: return
 
     val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
     val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
@@ -78,7 +73,7 @@ fun PlayerFooter(
                 onNavigateToPlayMusic()
             }
             .padding(16.dp)
-             else Modifier
+        else Modifier
             .fillMaxWidth()
             .background(
                 if (colorMusic != Color.Unspecified) {
@@ -137,13 +132,7 @@ fun PlayerFooter(
         Row {
             IconButton(modifier = Modifier.size(40.dp), onClick = {
                 musicViewModel.onEvent(MusicUiEvent.OnPlayPause)
-            }, enabled = hasNextMusic, colors = IconButtonColors(
-                disabledContentColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                disabledContainerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-                containerColor = Color.Transparent
-            )
-            ) {
+            }) {
                 Icon(
                     if (isPlaying) Icons.Sharp.Pause else Icons.Sharp.PlayArrow,
                     contentDescription = "AppMusic",
@@ -153,12 +142,16 @@ fun PlayerFooter(
             }
 
             IconButton(modifier = Modifier.size(40.dp), onClick = {
-                musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
-            }) {
+                musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
+            }, enabled = hasNextMusic, colors = IconButtonColors(
+                disabledContentColor = MaterialTheme.colorScheme.outline,
+                disabledContainerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.Transparent
+            )) {
                 Icon(
                     Icons.Sharp.SkipNext,
                     contentDescription = "AppMusic",
-                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxSize()
                 )
             }
