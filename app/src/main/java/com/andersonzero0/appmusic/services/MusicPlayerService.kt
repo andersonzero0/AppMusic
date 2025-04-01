@@ -49,7 +49,6 @@ class MusicPlayerService : Service() {
         updateRunnable = object : Runnable {
             override fun run() {
                 if (isPlaying()) {
-                    // Atualiza a posição atual no PlaybackState
                     val playbackState = PlaybackStateCompat.Builder()
                         .setActions(
                             PlaybackStateCompat.ACTION_PLAY_PAUSE or
@@ -144,7 +143,6 @@ class MusicPlayerService : Service() {
             setOnPreparedListener {
                 isPrepared = true
                 start()
-                // Set metadata with duration
                 val metadata = MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_TITLE, music.title)
                     .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, music.artist)
@@ -228,13 +226,6 @@ class MusicPlayerService : Service() {
     fun getCurrentPosition() = mediaPlayer?.currentPosition ?: 0
     fun getDuration() = mediaPlayer?.duration ?: 0
 
-    fun getCurrentPositionFormatted(): String {
-        val currentPosition = getCurrentPosition()
-        val minutes = (currentPosition / 1000) / 60
-        val seconds = (currentPosition / 1000) % 60
-        return String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds)
-    }
-
     fun getCurrentMusic(): Music? {
         return currentMusic
     }
@@ -280,7 +271,6 @@ class MusicPlayerService : Service() {
 
         mediaSession.setPlaybackState(playbackState)
 
-        // Adicione este trecho para criar a metadata com duração
         val metadata = MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentMusic?.title)
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentMusic?.artist)
@@ -323,7 +313,6 @@ class MusicPlayerService : Service() {
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setShowActionsInCompactView(0, 1, 2)
                     .setMediaSession(mediaSession.sessionToken)
-//                    .setShowProgressEnabled(true) // Habilita a barra de progresso
             )
             .addAction(previousAction)
             .addAction(playPauseAction)
@@ -332,7 +321,6 @@ class MusicPlayerService : Service() {
             .setDeleteIntent(getStopPendingIntent())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            // Remova a linha do setProgress() pois o MediaStyle agora cuida disso
             .build()
     }
 
