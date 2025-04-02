@@ -136,7 +136,7 @@ class MainActivity : ComponentActivity() {
                                                 tint = MaterialTheme.colorScheme.primary
                                             )
                                             Text(
-                                                "appmusic",
+                                                "App Music",
                                                 style = MaterialTheme.typography.headlineSmall,
                                                 fontWeight = FontWeight.Black
                                             )

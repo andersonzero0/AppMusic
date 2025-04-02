@@ -23,6 +23,7 @@ import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
@@ -152,8 +153,9 @@ class MusicPlayerService : Service() {
                 updateNotification()
             }
             setOnCompletionListener {
+                Log.d("MusicPlayerServiceLog", "Complete")
                 skipToNext()
-                handler.post { updateNotification() }
+//                handler.post { updateNotification() }
             }
         }
     }

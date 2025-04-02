@@ -56,14 +56,14 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
     ) {
         Text(
             text = currentPosition.toTimeFormat(),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Normal,
         )
 
         Text(
             text = duration.toTimeFormat(),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Normal,
         )
     }
 

@@ -127,7 +127,7 @@ fun PlayMusicScreen(
                 Text(
                     text = it.artist,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
