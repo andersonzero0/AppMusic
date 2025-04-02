@@ -47,6 +47,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val uiState by musicViewModel.uiState.collectAsStateWithLifecycle()
+    val currentMusic by musicViewModel.currentMusicState.collectAsStateWithLifecycle()
 
     AudioPermission(
         callback = {
@@ -66,6 +67,7 @@ fun HomeScreen(
             ListMusics(
                 onNavigateToPlayMusic = onNavigateToPlayMusic,
                 musics = uiState.musics,
+                currentMusic = currentMusic,
                 tempMusics = uiState.tempMusics,
                 onSearch = {
                     musicViewModel.onEvent(MusicUiEvent.OnSearch(it))

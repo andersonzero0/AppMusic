@@ -147,12 +147,12 @@ class MusicViewModel(
         }
     }
 
-    private fun playMusic(music: Music, playlist: List<Music>) {
+    private fun playMusic(music: Music, queueMusic: List<Music>) {
         if(music.id == getCurrentMusic()?.id) {
             return
         }
 
-        musicService?.playMusic(music, playlist)
+        musicService?.playMusic(music, queueMusic)
         _isPlayingState.value = true
     }
 
@@ -178,6 +178,10 @@ class MusicViewModel(
 
     fun hasPrevious(): Boolean {
         return musicService?.hasPreviousMusic() ?: false
+    }
+
+    fun getQueueMusic(): List<Music> {
+        return musicService?.getQueueMusic() ?: emptyList()
     }
 
     override fun onCleared() {

@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                                 brush = Brush.linearGradient(
                                     colors = listOf(
                                         if (colorMusic != Color.Unspecified) {
-                                            colorMusic.copy(alpha = 0.2f)
+                                            colorMusic.copy(alpha = 0.33f)
                                         } else {
                                             Color.Transparent
                                         },

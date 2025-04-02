@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 fun ListMusics(
     modifier: Modifier = Modifier,
     musics: List<Music>,
+    currentMusic: Music? = null,
     tempMusics: List<Music> = emptyList(),
     onNavigateToPlayMusic: (Music) -> Unit = {},
     onSearch: (String) -> Unit = {},
@@ -109,11 +110,8 @@ fun ListMusics(
 
         items(items = if (searchQuery.isNotEmpty()) tempMusics else musics) { music ->
             MusicItem(
-                id = music.id,
-                title = music.title,
-                artist = music.artist,
-                cover = music.albumArtUri,
-                duration = music.duration,
+                music = music,
+                playing = currentMusic?.id == music.id,
                 onClick = { onNavigateToPlayMusic(music) },
             )
         }

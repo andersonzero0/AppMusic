@@ -39,7 +39,7 @@ import java.util.Locale
 class MusicPlayerService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var currentMusic: Music? = null
-    private var playlist: List<Music>? = null
+    private var queueMusic: List<Music>? = null
     private var isPrepared = false
     private lateinit var mediaSession: MediaSessionCompat
 
@@ -130,9 +130,9 @@ class MusicPlayerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
-    fun playMusic(music: Music, playlist: List<Music>? = null) {
+    fun playMusic(music: Music, queueMusic: List<Music>? = null) {
         currentMusic = music
-        playlist?.let { this.playlist = it }
+        queueMusic?.let { this.queueMusic = it }
         onMusicChangeListener?.invoke(currentMusic)
 
         updateNotification()
@@ -164,8 +164,8 @@ class MusicPlayerService : Service() {
         return mediaPlayer?.isPlaying ?: false
     }
 
-    fun getPlaylist(): List<Music>? {
-        return playlist
+    fun getQueueMusic(): List<Music>? {
+        return queueMusic
     }
 
     fun play() {
@@ -185,18 +185,18 @@ class MusicPlayerService : Service() {
     }
 
     private fun getNextMusic(): Music? {
-        val currentIndex = playlist?.indexOf(currentMusic)
-        return if (currentIndex != null && currentIndex < playlist!!.size - 1) {
-            playlist!![currentIndex + 1]
+        val currentIndex = queueMusic?.indexOf(currentMusic)
+        return if (currentIndex != null && currentIndex < queueMusic!!.size - 1) {
+            queueMusic!![currentIndex + 1]
         } else {
             null
         }
     }
 
     private fun getPreviousMusic(): Music? {
-        val currentIndex = playlist?.indexOf(currentMusic)
+        val currentIndex = queueMusic?.indexOf(currentMusic)
         return if (currentIndex != null && currentIndex > 0) {
-            playlist!![currentIndex - 1]
+            queueMusic!![currentIndex - 1]
         } else {
             null
         }

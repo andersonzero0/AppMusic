@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.sharp.PlayCircleFilled
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,22 +30,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.services.toTimeFormat
+import com.andersonzero0.appmusic.ui.theme.colorMusic
 
 @Composable
 fun MusicItem(
-    id: Long,
-    title: String,
-    artist: String,
-    cover: Uri?,
-    duration: Int,
-    onClick: (Long) -> Unit = {}
+    music: Music,
+    playing: Boolean = false,
+    onClick: (Music) -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.small)
-            .clickable { onClick(id) }
+            .clickable { onClick(music) }
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -53,7 +54,7 @@ fun MusicItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             AsyncImage(
-                model = cover, contentDescription = "cover",
+                model = music.albumArtUri, contentDescription = "cover",
                 placeholder = painterResource(id = R.drawable.music_placeholder),
                 error = painterResource(id = R.drawable.music_placeholder),
                 contentScale = ContentScale.Crop,
@@ -73,14 +74,14 @@ fun MusicItem(
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
-                text = title,
+                text = music.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
             Text(
-                text = artist,
+                text = music.artist,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -92,11 +93,11 @@ fun MusicItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = duration.toTimeFormat(), style = MaterialTheme.typography.bodySmall)
+            Text(text = music.duration.toTimeFormat(), style = MaterialTheme.typography.bodyMedium)
             Icon(
-                Icons.Outlined.PlayCircle,
+                if (playing) Icons.Default.Equalizer else Icons.Outlined.PlayCircle,
                 contentDescription = "AppMusic",
-                tint = MaterialTheme.colorScheme.primary,
+                tint = if (playing) Color(0xFF1DB954) else MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .width(28.dp)
                     .aspectRatio(1f, matchHeightConstraintsFirst = true)
@@ -110,10 +111,13 @@ fun MusicItem(
 @Composable
 fun MusicItemPreview() {
     MusicItem(
-        id = 1L,
-        title = "Music",
-        artist = "Artista 1",
-        cover = Uri.parse("android.resource://com.andersonzero0.appmusic/drawable/img1"),
-        duration = 120,
+        music = Music(
+            id = 1,
+            title = "Title",
+            artist = "Artist",
+            albumArtUri = Uri.parse("https://example.com/cover.jpg"),
+            duration = 180000,
+            path = "path/to/music.mp3"
+        ),
     )
 }

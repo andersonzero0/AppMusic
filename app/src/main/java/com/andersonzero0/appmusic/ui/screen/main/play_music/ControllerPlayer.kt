@@ -1,4 +1,4 @@
-package com.andersonzero0.appmusic.ui.components.player
+package com.andersonzero0.appmusic.ui.screen.main.play_music
 
 import DraggableProgressIndicator
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.QueueMusic
 import androidx.compose.material.icons.sharp.PauseCircle
 import androidx.compose.material.icons.sharp.PlayCircleFilled
-import androidx.compose.material.icons.sharp.QueueMusic
 import androidx.compose.material.icons.sharp.Repeat
-import androidx.compose.material.icons.sharp.Shuffle
 import androidx.compose.material.icons.sharp.SkipNext
 import androidx.compose.material.icons.sharp.SkipPrevious
 import androidx.compose.material3.Icon
@@ -34,7 +32,12 @@ import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.services.toTimeFormat
 
 @Composable
-fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicViewModel: MusicViewModel) {
+fun ControllerPlayer(
+    duration: Int,
+    onProgressChange: (Float) -> Unit,
+    musicViewModel: MusicViewModel,
+    onQueueMusic: () -> Unit = {}
+) {
 
     val isPlaying by musicViewModel.isPlayingState.collectAsStateWithLifecycle()
     val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
@@ -80,14 +83,16 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
                 modifier = Modifier.fillMaxSize()
             )
         }
-        IconButton(modifier = Modifier.size(40.dp), onClick = {
-            musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
-        }, enabled = hasPreviousMusic, colors = IconButtonColors(
-            disabledContentColor = MaterialTheme.colorScheme.outline,
-            disabledContainerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
-            containerColor = Color.Transparent
-        )) {
+        IconButton(
+            modifier = Modifier.size(40.dp), onClick = {
+                musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
+            }, enabled = hasPreviousMusic, colors = IconButtonColors(
+                disabledContentColor = MaterialTheme.colorScheme.outline,
+                disabledContainerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.Transparent
+            )
+        ) {
             Icon(
                 Icons.Sharp.SkipPrevious,
                 contentDescription = "AppMusic",
@@ -104,14 +109,16 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
                 modifier = Modifier.fillMaxSize()
             )
         }
-        IconButton(modifier = Modifier.size(40.dp), onClick = {
-            musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
-        }, enabled = hasNextMusic, colors = IconButtonColors(
-            disabledContentColor = MaterialTheme.colorScheme.outline,
-            disabledContainerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
-            containerColor = Color.Transparent
-        )) {
+        IconButton(
+            modifier = Modifier.size(40.dp), onClick = {
+                musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
+            }, enabled = hasNextMusic, colors = IconButtonColors(
+                disabledContentColor = MaterialTheme.colorScheme.outline,
+                disabledContainerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.Transparent
+            )
+        ) {
             Icon(
                 Icons.Sharp.SkipNext,
                 contentDescription = "AppMusic",
@@ -119,7 +126,9 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
             )
         }
 
-        IconButton(modifier = Modifier.size(32.dp), onClick = { /*TODO*/ }) {
+        IconButton(modifier = Modifier.size(32.dp), onClick = {
+            onQueueMusic()
+        }) {
             Icon(
                 Icons.AutoMirrored.Sharp.QueueMusic,
                 contentDescription = "AppMusic",
@@ -127,7 +136,6 @@ fun ControllerPlayer(duration: Int, onProgressChange: (Float) -> Unit, musicView
                 modifier = Modifier.fillMaxSize()
             )
         }
-
     }
 
 }

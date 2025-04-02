@@ -19,7 +19,7 @@ import com.andersonzero0.appmusic.ui.theme.colorMusic
 fun Navbar(navController: NavController, navBarRoutes: List<NavBarRoute>) {
     NavigationBar(
         containerColor = if (colorMusic != Color.Unspecified) {
-            colorMusic.copy(alpha = 0.2f)
+            colorMusic.copy(alpha = 0.33f)
         } else {
             MaterialTheme.colorScheme.surfaceContainer
         },

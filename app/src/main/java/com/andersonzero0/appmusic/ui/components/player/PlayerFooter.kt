@@ -62,7 +62,7 @@ fun PlayerFooter(
             .fillMaxWidth()
             .background(
                 if (colorMusic != Color.Unspecified) {
-                    colorMusic.copy(alpha = 0.2f)
+                    colorMusic.copy(alpha = 0.33f)
                 } else {
                     MaterialTheme.colorScheme.onSecondary
                 },
@@ -77,7 +77,7 @@ fun PlayerFooter(
             .fillMaxWidth()
             .background(
                 if (colorMusic != Color.Unspecified) {
-                    colorMusic.copy(alpha = 0.2f)
+                    colorMusic.copy(alpha = 0.33f)
                 } else {
                     MaterialTheme.colorScheme.onSecondary
                 },
