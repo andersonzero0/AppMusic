@@ -22,8 +22,8 @@ fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: Musi
     navigation(startDestination = Route.Home.name, route = "main") {
         composable(Route.Home.name) {
             HomeScreen(
-                onNavigateToPlayMusic = { music ->
-                    musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(music))
+                onNavigateToPlayMusic = { music, mode ->
+                    musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(music, mode))
 
                     navController.navigate(Route.PlayMusic.name)
                 },

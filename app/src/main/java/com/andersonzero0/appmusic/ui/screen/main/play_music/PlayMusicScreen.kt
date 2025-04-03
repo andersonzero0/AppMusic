@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.ui.components.queue_music.QueueMusic
@@ -185,6 +186,7 @@ fun PlayMusicScreen(
                     sheetState = sheetState,
                     contentWindowInsets = { WindowInsets.navigationBars },
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
                     properties = ModalBottomSheetProperties(
                         shouldDismissOnBackPress = true
                     ),

@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.services.AudioService
 import com.andersonzero0.appmusic.services.MusicPlayerService
@@ -93,7 +94,7 @@ class MusicViewModel(
         when (event) {
             is MusicUiEvent.OnFetchMusics -> fetchMusics(event.context)
             is MusicUiEvent.OnSelectMusic -> {
-                    playMusic(event.music, uiState.value.musics)
+                    playMusic(event.music, uiState.value.musics, event.mode)
             }
             is MusicUiEvent.OnSearch -> searchMusics(event.query)
             is MusicUiEvent.OnPlayMusic -> playMusic(event.music, event.playlist)
@@ -101,6 +102,7 @@ class MusicViewModel(
             is MusicUiEvent.OnSeekTo -> seekTo(event.position)
             is MusicUiEvent.OnSkipToNext -> skipToNext()
             is MusicUiEvent.OnSkipToPrevious -> skipToPrevious()
+            is MusicUiEvent.OnChangeMode -> changeMode()
         }
     }
 
@@ -137,6 +139,24 @@ class MusicViewModel(
         }
     }
 
+    private fun changeMode() {
+        viewModelScope.launch {
+            _uiState.update { currentUiState ->
+                val newMode = when (currentUiState.mode) {
+                    MusicModeEnum.NORMAL -> MusicModeEnum.REPEAT_ONE
+                    MusicModeEnum.REPEAT_ONE -> MusicModeEnum.SHUFFLE
+                    MusicModeEnum.SHUFFLE -> MusicModeEnum.NORMAL
+                }
+
+                musicService?.changeMode(newMode)
+
+                currentUiState.copy(
+                    mode = newMode
+                )
+            }
+        }
+    }
+
     fun playPause() {
         if (musicService?.isPlaying() == true) {
             musicService?.pause()
@@ -147,12 +167,18 @@ class MusicViewModel(
         }
     }
 
-    private fun playMusic(music: Music, queueMusic: List<Music>) {
+    private fun playMusic(music: Music, queueMusic: List<Music>, mode: MusicModeEnum = uiState.value.mode) {
+        _uiState.update { currentUiState ->
+            currentUiState.copy(
+                mode = mode
+            )
+        }
+
         if(music.id == getCurrentMusic()?.id) {
             return
         }
 
-        musicService?.playMusic(music, queueMusic)
+        musicService?.playMusic(music, queueMusic, mode)
         _isPlayingState.value = true
     }
 

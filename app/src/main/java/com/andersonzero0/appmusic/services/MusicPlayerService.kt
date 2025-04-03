@@ -31,6 +31,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationCompat
 import com.andersonzero0.appmusic.MainActivity
 import com.andersonzero0.appmusic.R
+import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.ui.theme.colorMusic
 import com.andersonzero0.appmusic.ui.theme.primaryDark
@@ -40,8 +41,10 @@ class MusicPlayerService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var currentMusic: Music? = null
     private var queueMusic: List<Music>? = null
+    private var tempQueueMusic: List<Music>? = null
     private var isPrepared = false
     private lateinit var mediaSession: MediaSessionCompat
+    private var mode: MusicModeEnum = MusicModeEnum.NORMAL
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updateRunnable: Runnable
@@ -130,9 +133,34 @@ class MusicPlayerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
-    fun playMusic(music: Music, queueMusic: List<Music>? = null) {
+    fun playMusic(music: Music, queueMusic: List<Music>? = null, modeEnum: MusicModeEnum = mode) {
+        modeEnum.let { mode = it }
+
         currentMusic = music
-        queueMusic?.let { this.queueMusic = it }
+
+        queueMusic.let {
+            this.queueMusic = it
+            tempQueueMusic = it
+        }
+
+        when (modeEnum) {
+            MusicModeEnum.SHUFFLE -> {
+                queueMusic?.let {
+                    this.tempQueueMusic = it.shuffled()
+                }
+            }
+            MusicModeEnum.REPEAT_ONE -> {
+                queueMusic?.let { item ->
+                    this.tempQueueMusic = item.distinctBy { currentMusic!!.id }
+                }
+            }
+            else -> {
+                queueMusic?.let {
+                    this.tempQueueMusic = it
+                }
+            }
+        }
+
         onMusicChangeListener?.invoke(currentMusic)
 
         updateNotification()
@@ -153,7 +181,6 @@ class MusicPlayerService : Service() {
                 updateNotification()
             }
             setOnCompletionListener {
-                Log.d("MusicPlayerServiceLog", "Complete")
                 skipToNext()
 //                handler.post { updateNotification() }
             }
@@ -165,12 +192,31 @@ class MusicPlayerService : Service() {
     }
 
     fun getQueueMusic(): List<Music>? {
-        return queueMusic
+        return tempQueueMusic
+    }
+
+    fun changeMode(modeEnum: MusicModeEnum) {
+        mode = modeEnum
+
+        tempQueueMusic = when (modeEnum) {
+            MusicModeEnum.NORMAL -> {
+                queueMusic?.distinctBy { it.id }
+            }
+
+            MusicModeEnum.SHUFFLE -> {
+                queueMusic?.shuffled()
+            }
+
+            MusicModeEnum.REPEAT_ONE -> {
+                Log.d("MusicPlayerServiceLog", "REPEAT_ONE ${currentMusic!!.title}")
+                queueMusic?.distinctBy { currentMusic?.id }
+            }
+        }
     }
 
     fun play() {
         if (!isPrepared && currentMusic != null) {
-            playMusic(currentMusic!!)
+            playMusic(currentMusic!!, modeEnum = mode)
         } else {
             mediaPlayer?.start()
             updateNotification()
@@ -185,20 +231,20 @@ class MusicPlayerService : Service() {
     }
 
     private fun getNextMusic(): Music? {
-        val currentIndex = queueMusic?.indexOf(currentMusic)
-        return if (currentIndex != null && currentIndex < queueMusic!!.size - 1) {
-            queueMusic!![currentIndex + 1]
+        val currentIndex = tempQueueMusic?.indexOf(currentMusic)
+        return if (currentIndex != null && currentIndex < tempQueueMusic!!.size - 1) {
+            tempQueueMusic!![currentIndex + 1]
         } else {
-            null
+            tempQueueMusic?.firstOrNull()
         }
     }
 
     private fun getPreviousMusic(): Music? {
-        val currentIndex = queueMusic?.indexOf(currentMusic)
+        val currentIndex = tempQueueMusic?.indexOf(currentMusic)
         return if (currentIndex != null && currentIndex > 0) {
-            queueMusic!![currentIndex - 1]
+            tempQueueMusic!![currentIndex - 1]
         } else {
-            null
+            tempQueueMusic?.lastOrNull()
         }
     }
 
@@ -212,12 +258,12 @@ class MusicPlayerService : Service() {
 
     fun skipToNext() {
         val nextMusic = getNextMusic()
-        nextMusic?.let { playMusic(it) }
+        nextMusic?.let { playMusic(it, queueMusic = queueMusic, modeEnum = mode) }
     }
 
     fun skipToPrevious() {
         val prevMusic = getPreviousMusic()
-        prevMusic?.let { playMusic(it) }
+        prevMusic?.let { playMusic(it, queueMusic = queueMusic, modeEnum = mode) }
     }
 
     fun seekTo(position: Int) {

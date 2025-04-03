@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.model.Music
 import kotlinx.coroutines.delay
 
@@ -38,8 +39,9 @@ fun ListMusics(
     modifier: Modifier = Modifier,
     musics: List<Music>,
     currentMusic: Music? = null,
+    mode: MusicModeEnum,
     tempMusics: List<Music> = emptyList(),
-    onNavigateToPlayMusic: (Music) -> Unit = {},
+    onNavigateToPlayMusic: (music: Music, mode: MusicModeEnum) -> Unit = {_, _ -> },
     onSearch: (String) -> Unit = {},
 ) {
 
@@ -86,7 +88,7 @@ fun ListMusics(
                             IconButton(onClick = {
                                 val randomMusic: Music = musics.random()
 
-                                onNavigateToPlayMusic(randomMusic)
+                                onNavigateToPlayMusic(randomMusic, MusicModeEnum.SHUFFLE)
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Shuffle,
@@ -112,7 +114,7 @@ fun ListMusics(
             MusicItem(
                 music = music,
                 playing = currentMusic?.id == music.id,
-                onClick = { onNavigateToPlayMusic(music) },
+                onClick = { onNavigateToPlayMusic(music, mode) },
             )
         }
     }
@@ -121,5 +123,7 @@ fun ListMusics(
 @Preview
 @Composable
 fun ListMusicsPreview() {
-    ListMusics(musics = emptyList())
+    ListMusics(musics = emptyList(), mode = MusicModeEnum.NORMAL) {
+        // Do nothing
+    }
 }

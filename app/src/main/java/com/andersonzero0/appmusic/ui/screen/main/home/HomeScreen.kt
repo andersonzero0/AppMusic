@@ -33,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.andersonzero0.appmusic.core.permissions.AudioPermission
 import com.andersonzero0.appmusic.core.permissions.NotificationPermission
+import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.model.Music
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
@@ -42,7 +43,7 @@ import com.andersonzero0.appmusic.ui.components.screen.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavigateToPlayMusic: (Music) -> Unit,
+    onNavigateToPlayMusic: (music: Music, mode: MusicModeEnum) -> Unit,
     musicViewModel: MusicViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -68,6 +69,7 @@ fun HomeScreen(
                 onNavigateToPlayMusic = onNavigateToPlayMusic,
                 musics = uiState.musics,
                 currentMusic = currentMusic,
+                mode = uiState.mode,
                 tempMusics = uiState.tempMusics,
                 onSearch = {
                     musicViewModel.onEvent(MusicUiEvent.OnSearch(it))
@@ -82,6 +84,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(
-        onNavigateToPlayMusic = {}
+        onNavigateToPlayMusic = { _, _ -> },
     )
 }
