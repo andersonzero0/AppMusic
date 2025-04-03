@@ -70,13 +70,13 @@ fun PlayMusicScreen(
 ) {
     val context = LocalContext.current
     val currentMusic by musicViewModel.currentMusicState.collectAsStateWithLifecycle()
+    val queueMusic by musicViewModel.queueMusicState.collectAsStateWithLifecycle()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true);
 
     Screen {
         LaunchedEffect(key1 = currentMusic) {
-
             currentMusic?.albumArtUri.let { uri ->/**/
                 runCatching {
                     uri?.let {
@@ -119,8 +119,8 @@ fun PlayMusicScreen(
             currentMusic?.let {
                 Text(
                     text = it.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -146,26 +146,26 @@ fun PlayMusicScreen(
             Column(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.Favorite,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Sharp.IosShare,
-                            contentDescription = "AppMusic",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ) {
+//                    IconButton(onClick = { /*TODO*/ }) {
+//                        Icon(
+//                            Icons.Sharp.Favorite,
+//                            contentDescription = "AppMusic",
+//                            tint = MaterialTheme.colorScheme.primary
+//                        )
+//                    }
+//                    IconButton(onClick = { /*TODO*/ }) {
+//                        Icon(
+//                            Icons.Sharp.IosShare,
+//                            contentDescription = "AppMusic",
+//                            tint = MaterialTheme.colorScheme.primary
+//                        )
+//                    }
+//                }
 
                 currentMusic?.let {
                     ControllerPlayer(
@@ -192,7 +192,7 @@ fun PlayMusicScreen(
                     ),
                 ) {
                     QueueMusic(
-                        queueMusic = musicViewModel.getQueueMusic(),
+                        queueMusic = queueMusic,
                         currentMusic,
                         onClickMusic = {
                             musicViewModel.onEvent(MusicUiEvent.OnSelectMusic(it))

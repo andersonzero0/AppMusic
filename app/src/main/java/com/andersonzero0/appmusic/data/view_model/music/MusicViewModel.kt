@@ -48,6 +48,9 @@ class MusicViewModel(
     private var _hasPreviousMusicState = MutableStateFlow(false)
     var hasPreviousMusicState: StateFlow<Boolean> = _hasPreviousMusicState.asStateFlow()
 
+    private val _queueMusicState = MutableStateFlow<List<Music>>(emptyList())
+    val queueMusicState: StateFlow<List<Music>> = _queueMusicState.asStateFlow()
+
     private var positionUpdaterJob: Job? = null
 
     private fun startPositionUpdater() {
@@ -71,6 +74,7 @@ class MusicViewModel(
                 _currentMusicState.value = newMusic
                 _hasNextMusicState.value = musicService?.hasNextMusic() ?: false
                 _hasPreviousMusicState.value = musicService?.hasPreviousMusic() ?: false
+                _queueMusicState.value = musicService?.getQueueMusic() ?: emptyList()
             }
 
             startPositionUpdater()
@@ -149,6 +153,7 @@ class MusicViewModel(
                 }
 
                 musicService?.changeMode(newMode)
+                _queueMusicState.value = musicService?.getQueueMusic() ?: emptyList()
 
                 currentUiState.copy(
                     mode = newMode
@@ -179,6 +184,9 @@ class MusicViewModel(
         }
 
         musicService?.playMusic(music, queueMusic, mode)
+
+        _queueMusicState.value = musicService?.getQueueMusic() ?: emptyList()
+
         _isPlayingState.value = true
     }
 

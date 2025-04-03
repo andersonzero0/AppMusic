@@ -73,13 +73,13 @@ fun ControllerPlayer(
     ) {
         Text(
             text = currentPosition.toTimeFormat(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Normal,
         )
 
         Text(
             text = duration.toTimeFormat(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Normal,
         )
     }

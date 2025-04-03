@@ -145,13 +145,15 @@ class MusicPlayerService : Service() {
 
         when (modeEnum) {
             MusicModeEnum.SHUFFLE -> {
-                queueMusic?.let {
-                    this.tempQueueMusic = it.shuffled()
+                queueMusic?.let { list ->
+                    this.tempQueueMusic = list.filter { it.id != music.id }
+                        .shuffled()
+                        .let { shuffledList -> listOf(music) + shuffledList }
                 }
             }
             MusicModeEnum.REPEAT_ONE -> {
-                queueMusic?.let { item ->
-                    this.tempQueueMusic = item.distinctBy { currentMusic!!.id }
+                queueMusic?.let {
+                    this.tempQueueMusic = listOf(music)
                 }
             }
             else -> {
@@ -200,16 +202,19 @@ class MusicPlayerService : Service() {
 
         tempQueueMusic = when (modeEnum) {
             MusicModeEnum.NORMAL -> {
-                queueMusic?.distinctBy { it.id }
+                queueMusic
             }
 
             MusicModeEnum.SHUFFLE -> {
-                queueMusic?.shuffled()
+                queueMusic?.let { list ->
+                    list.filter { it.id != currentMusic?.id }
+                        .shuffled()
+                        .let { shuffledList -> listOf(currentMusic!!) + shuffledList }
+                }
             }
 
             MusicModeEnum.REPEAT_ONE -> {
-                Log.d("MusicPlayerServiceLog", "REPEAT_ONE ${currentMusic!!.title}")
-                queueMusic?.distinctBy { currentMusic?.id }
+                listOf(currentMusic!!)
             }
         }
     }

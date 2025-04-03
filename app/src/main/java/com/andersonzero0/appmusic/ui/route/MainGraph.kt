@@ -18,7 +18,6 @@ import com.andersonzero0.appmusic.ui.screen.main.profile.ProfileScreen
 
 
 fun NavGraphBuilder.mainGraph(navController: NavController, musicViewModel: MusicViewModel) {
-
     navigation(startDestination = Route.Home.name, route = "main") {
         composable(Route.Home.name) {
             HomeScreen(

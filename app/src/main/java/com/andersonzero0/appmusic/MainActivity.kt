@@ -162,12 +162,12 @@ class MainActivity : ComponentActivity() {
                                             }
                                         )
                                     }
-                                    if (shouldShowBottomBar(currentRoute)) {
-                                        Navbar(
-                                            navController = navController,
-                                            navBarRoutes = navBarRoutes
-                                        )
-                                    }
+//                                    if (shouldShowBottomBar(currentRoute)) {
+//                                        Navbar(
+//                                            navController = navController,
+//                                            navBarRoutes = navBarRoutes
+//                                        )
+//                                    }
                                 }
                             },
                             containerColor = Color.Transparent,

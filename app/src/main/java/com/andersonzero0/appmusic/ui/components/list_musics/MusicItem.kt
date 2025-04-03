@@ -75,14 +75,14 @@ fun MusicItem(
         ) {
             Text(
                 text = music.title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
             Text(
                 text = music.artist,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -93,7 +93,7 @@ fun MusicItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = music.duration.toTimeFormat(), style = MaterialTheme.typography.bodyMedium)
+            Text(text = music.duration.toTimeFormat(), style = MaterialTheme.typography.bodySmall)
             Icon(
                 if (playing) Icons.Default.Equalizer else Icons.Outlined.PlayCircle,
                 contentDescription = "AppMusic",

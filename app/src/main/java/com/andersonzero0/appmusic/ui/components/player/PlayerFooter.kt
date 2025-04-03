@@ -2,6 +2,7 @@ package com.andersonzero0.appmusic.ui.components.player
 
 import DraggableProgressIndicator
 import android.app.Application
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Pause
 import androidx.compose.material.icons.sharp.PlayArrow
@@ -25,18 +28,22 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.palette.graphics.Palette
 import coil3.compose.AsyncImage
 import com.andersonzero0.appmusic.R
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
@@ -50,6 +57,8 @@ fun PlayerFooter(
     onNavigateToPlayMusic: () -> Unit = {}
 ) {
 
+    val context = LocalContext.current
+
     val music = musicViewModel.currentMusicState.collectAsStateWithLifecycle().value
         ?: return
 
@@ -57,9 +66,37 @@ fun PlayerFooter(
     val currentPosition by musicViewModel.currentPositionState.collectAsStateWithLifecycle()
     val hasNextMusic by musicViewModel.hasNextMusicState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = music) {
+        music.albumArtUri.let { uri ->/**/
+            runCatching {
+                uri.let {
+                    context.contentResolver.openInputStream(it)?.use { inputStream ->
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        val palette = Palette.from(bitmap).generate()
+
+                        val colorVibrant =
+                            Color(palette.getDarkVibrantColor(Color.White.toArgb()))
+
+                        colorVibrant
+                    }
+                }
+            }.onSuccess { result ->
+                colorMusic = result ?: Color.Unspecified
+            }
+        }
+    }
+
     Row(
         modifier = if (navigationBar) Modifier
             .fillMaxWidth()
+            .clip(
+                RoundedCornerShape(
+                    MaterialTheme.shapes.large.topStart,
+                    MaterialTheme.shapes.large.topEnd,
+                    CornerSize(0.dp),
+                    CornerSize(0.dp)
+                )
+            )
             .background(
                 if (colorMusic != Color.Unspecified) {
                     colorMusic.copy(alpha = 0.33f)
@@ -75,6 +112,14 @@ fun PlayerFooter(
             .padding(16.dp)
         else Modifier
             .fillMaxWidth()
+            .clip(
+                RoundedCornerShape(
+                    MaterialTheme.shapes.large.topStart,
+                    MaterialTheme.shapes.large.topEnd,
+                    CornerSize(0.dp),
+                    CornerSize(0.dp)
+                )
+            )
             .background(
                 if (colorMusic != Color.Unspecified) {
                     colorMusic.copy(alpha = 0.33f)
@@ -82,6 +127,7 @@ fun PlayerFooter(
                     MaterialTheme.colorScheme.onSecondary
                 },
             )
+            .navigationBarsPadding() // * TEMP
             .height(86.dp)
             .clickable {
                 onNavigateToPlayMusic()
@@ -141,14 +187,16 @@ fun PlayerFooter(
                 )
             }
 
-            IconButton(modifier = Modifier.size(40.dp), onClick = {
-                musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
-            }, enabled = hasNextMusic, colors = IconButtonColors(
-                disabledContentColor = MaterialTheme.colorScheme.outline,
-                disabledContainerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-                containerColor = Color.Transparent
-            )) {
+            IconButton(
+                modifier = Modifier.size(40.dp), onClick = {
+                    musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
+                }, enabled = hasNextMusic, colors = IconButtonColors(
+                    disabledContentColor = MaterialTheme.colorScheme.outline,
+                    disabledContainerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color.Transparent
+                )
+            ) {
                 Icon(
                     Icons.Sharp.SkipNext,
                     contentDescription = "AppMusic",
