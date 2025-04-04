@@ -355,7 +355,7 @@ class MusicPlayerService : Service() {
             ?: BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentTitle(currentMusic?.title ?: "Sem música")
             .setContentText(currentMusic?.artist ?: "Artista desconhecido")
             .setLargeIcon(largeIcon)
