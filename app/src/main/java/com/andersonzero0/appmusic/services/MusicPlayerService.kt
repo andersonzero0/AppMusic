@@ -47,7 +47,7 @@ class MusicPlayerService : Service() {
     private var mode: MusicModeEnum = MusicModeEnum.NORMAL
 
     private val handler = Handler(Looper.getMainLooper())
-    private lateinit var updateRunnable: Runnable
+    private var updateRunnable: Runnable
 
     init {
         updateRunnable = object : Runnable {

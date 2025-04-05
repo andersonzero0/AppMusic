@@ -11,14 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.ArrowBackIosNew
 import androidx.compose.material.icons.sharp.Download
-import androidx.compose.material.icons.sharp.MusicNote
 import androidx.compose.material.icons.sharp.PlayCircleFilled
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,13 +34,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andersonzero0.appmusic.ui.theme.AppMusicTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
-import com.andersonzero0.appmusic.ui.components.navbar.Navbar
 import com.andersonzero0.appmusic.ui.components.player.PlayerFooter
 import com.andersonzero0.appmusic.ui.route.Route
 import com.andersonzero0.appmusic.ui.route.mainGraph
@@ -178,7 +172,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = "main",
                                 modifier = Modifier.padding(innerPadding)
                             ) {
-                                authGraph(navController)
+                                authGraph()
                                 mainGraph(navController, musicViewModel)
                             }
                         }

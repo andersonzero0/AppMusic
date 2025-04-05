@@ -66,12 +66,10 @@ class AudioService {
                     continue
                 }
 
-                val durationFormat = duration.toTimeFormat()
-
                 val path = it.getString(dataIndex) ?: ""
                 val albumId = if (albumIdIndex != -1) it.getLong(albumIdIndex) else 0L
 
-                val albumArtUri = getAlbumCoverUri(context, albumId)
+                val albumArtUri = getAlbumCoverUri(albumId)
 
                 listMusics.add(Music(id, title, artist, duration, path, albumArtUri))
             }
@@ -95,7 +93,7 @@ fun isDurationValid(duration: Int): Boolean {
     return duration > 30_000
 }
 
-fun getAlbumCoverUri(context: Context, albumId: Long): Uri {
+fun getAlbumCoverUri(albumId: Long): Uri {
     return ContentUris.withAppendedId(
         Uri.parse("content://media/external/audio/albumart"),
         albumId
