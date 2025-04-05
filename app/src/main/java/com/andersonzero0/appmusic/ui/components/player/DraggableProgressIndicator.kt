@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import com.andersonzero0.appmusic.ui.theme.colorMusic
 import kotlin.math.roundToInt
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -41,7 +42,7 @@ import kotlin.math.roundToInt
 fun DraggableProgressIndicator(
     modifier: Modifier = Modifier,
     activeBall: Boolean = true,
-    progress: Float = 0.0f,
+    progress: Float = 0.2f,
     onProgressChange: (Float) -> Unit = {},
 ) {
     val containerWidth = remember { mutableIntStateOf(0) }
@@ -77,7 +78,11 @@ fun DraggableProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(4.dp),
-            color = MaterialTheme.colorScheme.primary,
+            color = if (colorMusic == Color.Unspecified) MaterialTheme.colorScheme.primary else colorMusic.copy(
+                red = (colorMusic.red + 0.4f).coerceIn(0f, 1f),
+                green = (colorMusic.green + 0.4f).coerceIn(0f, 1f),
+                blue = (colorMusic.blue + 0.4f).coerceIn(0f, 1f)
+            ),
             drawStopIndicator = {
                 drawStopIndicator(
                     drawScope = this,

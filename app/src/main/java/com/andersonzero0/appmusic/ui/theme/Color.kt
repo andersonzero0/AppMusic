@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 var colorMusic by mutableStateOf(Color.Unspecified)
+var colorMusicSecondary by mutableStateOf(Color.Unspecified)
 
 // Tema Claro
 val primaryLight = Color(0xFF0D0D0D)

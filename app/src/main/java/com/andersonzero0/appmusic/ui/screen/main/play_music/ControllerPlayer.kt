@@ -1,11 +1,18 @@
 package com.andersonzero0.appmusic.ui.screen.main.play_music
 
 import DraggableProgressIndicator
+import android.app.Application
 import android.graphics.drawable.Icon
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -28,15 +35,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andersonzero0.appmusic.data.enums.MusicModeEnum
 import com.andersonzero0.appmusic.data.view_model.music.MusicUiEvent
 import com.andersonzero0.appmusic.data.view_model.music.MusicViewModel
 import com.andersonzero0.appmusic.services.toTimeFormat
+import com.andersonzero0.appmusic.ui.theme.colorMusic
+import com.andersonzero0.appmusic.ui.theme.colorMusicSecondary
 
 @Composable
 fun ControllerPlayer(
@@ -58,100 +74,120 @@ fun ControllerPlayer(
         MusicModeEnum.NORMAL -> Icons.Sharp.Repeat
     }
 
-    DraggableProgressIndicator(
-        progress = currentPosition.toFloat() / duration,
-        onProgressChange = onProgressChange,
-        activeBall = true,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
-    Row(
+    Column(
         modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth()
     ) {
-        Text(
-            text = currentPosition.toTimeFormat(),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Normal,
+        DraggableProgressIndicator(
+            progress = currentPosition.toFloat() / duration,
+            onProgressChange = onProgressChange,
+            activeBall = true,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        Text(
-            text = duration.toTimeFormat(),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Normal,
-        )
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(modifier = Modifier.size(32.dp), onClick = {
-            musicViewModel.onEvent(MusicUiEvent.OnChangeMode)
-        }) {
-            Icon(
-                iconMode,
-                contentDescription = "AppMusic",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-        IconButton(
-            modifier = Modifier.size(40.dp), onClick = {
-                musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
-            }, enabled = hasPreviousMusic, colors = IconButtonColors(
-                disabledContentColor = MaterialTheme.colorScheme.outline,
-                disabledContainerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-                containerColor = Color.Transparent
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Sharp.SkipPrevious,
-                contentDescription = "AppMusic",
-                modifier = Modifier.fillMaxSize()
+            Text(
+                text = currentPosition.toTimeFormat(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Normal,
             )
-        }
-        IconButton(modifier = Modifier.size(64.dp), onClick = {
-            musicViewModel.onEvent(MusicUiEvent.OnPlayPause)
-        }) {
-            Icon(
-                if (isPlaying) Icons.Sharp.PauseCircle else Icons.Sharp.PlayCircleFilled,
-                contentDescription = "AppMusic",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-        IconButton(
-            modifier = Modifier.size(40.dp), onClick = {
-                musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
-            }, enabled = hasNextMusic, colors = IconButtonColors(
-                disabledContentColor = MaterialTheme.colorScheme.outline,
-                disabledContainerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-                containerColor = Color.Transparent
-            )
-        ) {
-            Icon(
-                Icons.Sharp.SkipNext,
-                contentDescription = "AppMusic",
-                modifier = Modifier.fillMaxSize(),
+
+            Text(
+                text = duration.toTimeFormat(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Normal,
             )
         }
 
-        IconButton(modifier = Modifier.size(32.dp), onClick = {
-            onQueueMusic()
-        }) {
-            Icon(
-                Icons.AutoMirrored.Sharp.QueueMusic,
-                contentDescription = "AppMusic",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxSize()
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(modifier = Modifier.size(32.dp), onClick = {
+                musicViewModel.onEvent(MusicUiEvent.OnChangeMode)
+            }) {
+                Icon(
+                    iconMode,
+                    contentDescription = "AppMusic",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            IconButton(
+                modifier = Modifier.size(40.dp), onClick = {
+                    musicViewModel.onEvent(MusicUiEvent.OnSkipToPrevious)
+                }, enabled = hasPreviousMusic, colors = IconButtonColors(
+                    disabledContentColor = MaterialTheme.colorScheme.outline,
+                    disabledContainerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color.Transparent
+                )
+            ) {
+                Icon(
+                    Icons.Sharp.SkipPrevious,
+                    contentDescription = "AppMusic",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            IconButton(modifier = Modifier.size(64.dp), onClick = {
+                musicViewModel.onEvent(MusicUiEvent.OnPlayPause)
+            }) {
+                Icon(
+                    if (isPlaying) Icons.Sharp.PauseCircle else Icons.Sharp.PlayCircleFilled,
+                    contentDescription = "AppMusic",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            IconButton(
+                modifier = Modifier.size(40.dp), onClick = {
+                    musicViewModel.onEvent(MusicUiEvent.OnSkipToNext)
+                }, enabled = hasNextMusic, colors = IconButtonColors(
+                    disabledContentColor = MaterialTheme.colorScheme.outline,
+                    disabledContainerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color.Transparent
+                )
+            ) {
+                Icon(
+                    Icons.Sharp.SkipNext,
+                    contentDescription = "AppMusic",
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+
+            IconButton(modifier = Modifier.size(32.dp), onClick = {
+                onQueueMusic()
+            }) {
+                Icon(
+                    Icons.AutoMirrored.Sharp.QueueMusic,
+                    contentDescription = "AppMusic",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
+}
 
+@Preview
+@Composable
+fun ControllerPlayerPreview() {
+    val duration = 300
+    val onProgressChange: (Float) -> Unit = {}
+    val musicViewModel = MusicViewModel(Application())
+    val onQueueMusic = {}
+
+    ControllerPlayer(
+        duration = duration,
+        onProgressChange = onProgressChange,
+        musicViewModel = musicViewModel,
+        onQueueMusic = onQueueMusic
+    )
 }
